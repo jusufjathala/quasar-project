@@ -1,6 +1,7 @@
 # quasar-project
 
 Proyek latihan menggunakan Quasar
+Dibuat oleh Jusuf Junior Athala
 
 # how to use
 
