@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-lg">
-    <h5 class="q-mt-none">List of stuffs</h5>
+    <h5 class="q-mt-none">List of tasks</h5>
     <q-list separator bordered>
       <q-item
         v-for="(task, index) in tasks"
@@ -80,11 +80,10 @@ export default defineComponent({
       amountDone,
     };
   },
-  methods() {
-    deleteTask(index){
-      this.tasks.splice(index,1);
-    }
-    // return {};
+  methods: {
+    deleteTask(index) {
+      this.tasks.splice(index, 1);
+    },
   },
 });
 </script>
