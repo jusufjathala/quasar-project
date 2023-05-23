@@ -19,4 +19,11 @@ Proyek latihan menggunakan Quasar
 - menghitung tasks yang telah dicentang
 
 2. 23/05/2023
-   Added feature: bisa menghapus task
+   Added feature:
+
+- bisa menghapus task
+- collapsible daftar sistem rekomendasi di sidebar
+
+  Removed :
+
+- Test page
