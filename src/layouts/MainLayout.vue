@@ -52,13 +52,40 @@
             <q-item-section> Help </q-item-section>
           </q-item>
 
-          <q-item to="/test" clickable v-ripple exact>
+          <q-item to="/users" clickable v-ripple exact>
             <q-item-section avatar>
               <q-icon name="check" />
             </q-item-section>
 
-            <q-item-section> Test </q-item-section>
+            <q-item-section> Users </q-item-section>
           </q-item>
+
+          <q-expansion-item
+            expand-separator
+            icon="devices_other"
+            label="Sistem Rekomendasi"
+            default-closed
+          >
+            <q-item to="/android" clickable v-ripple exact>
+              <q-item-section avatar>
+                <q-icon name="adb" />
+              </q-item-section>
+              <q-item-section> Android </q-item-section>
+            </q-item>
+            <q-item to="/ios" clickable v-ripple exact>
+              <q-item-section avatar>
+                <q-icon name="apple" />
+              </q-item-section>
+              <q-item-section> IOS </q-item-section>
+            </q-item>
+            <q-item to="/desktop" clickable v-ripple exact>
+              <q-item-section avatar>
+                <q-icon name="monitor" />
+              </q-item-section>
+
+              <q-item-section> Desktop </q-item-section>
+            </q-item>
+          </q-expansion-item>
         </q-list>
       </q-scroll-area>
 
