@@ -24,7 +24,8 @@ Dibuat oleh Jusuf Junior Athala
 
 - bisa menghapus task
 - collapsible daftar sistem rekomendasi di sidebar
-
+- user page
+- tabel user dengan profile picture masing-masing user
   Removed :
 
 - Test page
