@@ -5,8 +5,9 @@ Dibuat oleh Jusuf Junior Athala
 
 # how to use
 
-1. pada directory, gunakan command 'quasar dev'
-2. buka localhost http://localhost:8080/#/ pada internet browser
+1. install dengan 'npm init quasar'
+2. pada directory, gunakan command 'quasar dev'
+3. buka localhost http://localhost:8080/#/ pada internet browser
 
 # progress
 
@@ -26,6 +27,7 @@ Dibuat oleh Jusuf Junior Athala
 - collapsible daftar sistem rekomendasi di sidebar
 - user page
 - tabel user dengan profile picture masing-masing user
+
   Removed :
 
 - Test page
