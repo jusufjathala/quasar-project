@@ -31,3 +31,15 @@ Dibuat oleh Jusuf Junior Athala
   Removed :
 
 - Test page
+
+3. 24/05/2023
+   Added feature:
+
+- add row pada tabel user
+- delete row pada tabel user
+- edit user
+- set active user
+
+  Bug :
+
+- edit user
