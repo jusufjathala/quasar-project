@@ -44,3 +44,25 @@ Dibuat oleh Jusuf Junior Athala
   Bug :
 
 - edit user
+
+4. 25/05/2023
+   Added feature:
+
+- add perusahaan page
+- add perusahaan tabel
+- load data perusahaan dari API
+- login API untuk mendapatkan token
+- melakukan POST untuk membuat row baru pada API setelah login
+
+  Bug Fixed:
+
+- bug edit role user
+
+  ToDo :
+
+- membuat dialog create user, dengan segala jenis input seperti radio, dropdown, dll.
+- membuat dialog create perusahaan
+- membuat login page
+- menyembunyikan kolom yang tidak diperlukan pada perusahaan
+- membuat halaman detail perusahaan
+- mengatur pagination menjadi non lokal untuk tabel perusahaan

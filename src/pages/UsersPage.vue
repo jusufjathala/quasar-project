@@ -83,6 +83,10 @@
                   @click="
                     editdialog = true;
                     idselected = props.row.id;
+
+                    editform.value = { ...props.row };
+                    // editform.value = editform.value.concat(props.row);
+                    // console.log(`${editform.value}`);
                   "
                   flat
                   dense
@@ -124,8 +128,8 @@
                         <div><q-icon name="contacts" />Username</div>
                         <q-input
                           dense
-                          v-model="props.row.username"
-                          :placeholder="props.row.username"
+                          v-model="editform.value.username"
+                          placeholder="username123"
                         />
                       </q-card-section>
                     </div>
@@ -134,8 +138,8 @@
                         <div><q-icon name="face" />Nama</div>
                         <q-input
                           dense
-                          v-model="props.row.nama"
-                          :placeholder="props.row.nama"
+                          v-model="editform.value.nama"
+                          placheholder="Sir Name"
                         />
                       </q-card-section>
                     </div>
@@ -144,24 +148,24 @@
                         <div><q-icon name="mail" />Email</div>
                         <q-input
                           dense
-                          v-model="props.row.email"
-                          :placeholder="props.row.email"
+                          v-model="editform.value.email"
+                          placeholder="usermail@mail.com"
                         />
                       </q-card-section>
                     </div>
                     <div>
                       <q-card-section>
                         <div><q-icon name="apartment" />Instansi</div>
-                        <q-input v-model="instansi" dense value="nice" />
+                        <q-input v-model="instansi" dense />
                       </q-card-section>
                     </div>
                     <div>
                       <q-card-section>
                         <div><q-icon name="cases" />Roles</div>
                         <q-input
-                          v-model="props.row.roles"
+                          v-model="editform.value.roles"
                           dense
-                          :placeholder="props.row.roles"
+                          placeholder="pengguna,vip,admin"
                         />
                       </q-card-section>
                     </div>
@@ -171,7 +175,8 @@
                       <q-btn
                         @click.stop="
                           idselected = props.row.id;
-                          editRow(idselected);
+                          editRow(editform);
+                          // props.row = editform;
                         "
                         flat
                         label="UBAH"
@@ -354,12 +359,6 @@ const originalRows = [
     isactive: true,
   },
 ];
-const editform = {
-  username: "",
-  nama: "",
-  email: "",
-  roles: [],
-};
 export default defineComponent({
   name: "UsersPage",
   setup() {
@@ -371,8 +370,11 @@ export default defineComponent({
     const filter = ref("");
     const rows = ref([...originalRows]);
     const rowCount = ref(rows.value.length);
+    const editform = ref({});
+    const instansi = ref("");
     // expose to template and other options API hooks
     return {
+      // editformref,
       editdialog,
       activedialog,
       blockdialog,
@@ -383,6 +385,7 @@ export default defineComponent({
       rowCount,
       rows,
       columns,
+      instansi,
       initialPagination: {
         sortBy: "id",
         descending: false,
@@ -390,10 +393,6 @@ export default defineComponent({
         rowsPerPage: 10,
         // rowsNumber: xx if getting data from a server
       },
-      // delRow() {
-      //   const index = 0;
-      //   this.rows.splice(index, 1);
-      // },
       delRow() {
         loading.value = true;
         setTimeout(() => {
@@ -419,41 +418,31 @@ export default defineComponent({
           newRow.id = rowCount.value + 1;
           rows.value = [...rows.value, newRow];
           rowCount.value = rows.value.length;
-          // console.log(newRow.value);
           loading.value = false;
         }, 500);
       },
-      // addRow2() {
-      //   const index = 1; //Math.floor(Math.random() * rowCount),
-      //   let newRow = this.rows[index];
-      //   console.log(newRow);
-      //   let newRow2 = [];
+      editRow(editform) {
+        loading.value = true;
+        setTimeout(() => {
+          const idedit = editform.value.id;
+          const indexrow = rows.value.findIndex((item) => item.id == idedit);
+          // console.log(editform.value.roles);
 
-      //   let newRow3 = newRow2.concat(newRow);
-      //   console.log(newRow3);
-      //   this.rows.concat(newRow3);
-      // },
-      editRow(idselected) {
-        // let rowselected = this.rows[idselected - 1];
-        // rowselected.username = editform.username;
-        // rowselected.email = editform.email;
-        // rowselected.nama = editform.nama;
-        // rowselected.roles = editform.roles;
-        // this.rows.value[idselected].email = editform.email;
+          //handling array of string roles
+          if (!Array.isArray(editform.value.roles)) {
+            editform.value.roles = editform.value.roles.split(",");
+          }
+          // console.log("after");
+          // console.log(editform.value.roles);
+
+          rows.value[indexrow] = editform.value;
+          loading.value = false;
+        }, 500);
       },
     };
   },
   // data() {
-  //   return {
-
-  //     initialPagination: {
-  //       sortBy: "id",
-  //       descending: false,
-  //       page: 1,
-  //       rowsPerPage: 10,
-  //       // rowsNumber: xx if getting data from a server
-  //     },
-  //   };
+  //   return {};
   // },
   // methods: {},
 });
