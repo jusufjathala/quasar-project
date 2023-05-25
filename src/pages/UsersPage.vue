@@ -426,15 +426,9 @@ export default defineComponent({
         setTimeout(() => {
           const idedit = editform.value.id;
           const indexrow = rows.value.findIndex((item) => item.id == idedit);
-          // console.log(editform.value.roles);
-
-          //handling array of string roles
           if (!Array.isArray(editform.value.roles)) {
             editform.value.roles = editform.value.roles.split(",");
           }
-          // console.log("after");
-          // console.log(editform.value.roles);
-
           rows.value[indexrow] = editform.value;
           loading.value = false;
         }, 500);
