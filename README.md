@@ -6,8 +6,9 @@ Dibuat oleh Jusuf Junior Athala
 # how to use
 
 1. install dengan 'npm init quasar'
-2. pada directory, gunakan command 'quasar dev'
-3. buka localhost http://localhost:8080/#/ pada internet browser
+2. install library : 'npm install axios'
+3. pada directory, gunakan command 'quasar dev'
+4. buka localhost http://localhost:8080/#/ pada internet browser
 
 # progress
 

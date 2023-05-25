@@ -9,6 +9,10 @@ const routes = [
       { path: "android", component: () => import("pages/AndroidPage.vue") },
       { path: "ios", component: () => import("pages/IosPage.vue") },
       { path: "desktop", component: () => import("pages/DesktopPage.vue") },
+      {
+        path: "perusahaan",
+        component: () => import("pages/PerusahaanPage.vue"),
+      },
     ],
   },
 

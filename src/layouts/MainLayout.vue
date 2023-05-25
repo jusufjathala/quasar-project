@@ -54,10 +54,17 @@
 
           <q-item to="/users" clickable v-ripple exact>
             <q-item-section avatar>
-              <q-icon name="check" />
+              <q-icon name="people" />
             </q-item-section>
 
             <q-item-section> Users </q-item-section>
+          </q-item>
+          <q-item to="/perusahaan" clickable v-ripple exact>
+            <q-item-section avatar>
+              <q-icon name="apartment" />
+            </q-item-section>
+
+            <q-item-section> Perusahaan </q-item-section>
           </q-item>
 
           <q-expansion-item
