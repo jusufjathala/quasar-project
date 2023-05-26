@@ -58,6 +58,16 @@ Dibuat oleh Jusuf Junior Athala
 
 - bug edit role user
 
+5. 26/05/2023
+   Added feature:
+
+- new attribute untuk user jenis kelamin (radio button), jenis transportasi (drop down)
+- upload file profile picture untuk user
+
+  Bug :
+
+- bug tidak bisa show image dari src yang dynamic
+
   ToDo :
 
 - membuat dialog create user, dengan segala jenis input seperti radio, dropdown, dll.

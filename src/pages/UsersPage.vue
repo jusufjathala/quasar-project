@@ -63,7 +63,20 @@
                 class="q-mb-sm"
               >
                 <!-- <img :src="require('assets/${props.row.pictureurl}')" />  broken? why?-->
+                <!-- <div v-if="picturefile.value"> -->
+                <!-- <img src="~assets/" /> -->
+                <!-- <img src="loadPicture(props.row.pictureurl)" /> -->
+                <!-- <img :src="loadPicture(props.row.pictureurl)" /> -->
+
+                <!-- <WORK> -->
                 <img :src="require(`assets/${props.row.pictureurl}`)" />
+                <!-- </div> -->
+                <!-- <q-img :src="tempimgref.value" spinner-color="white" /> -->
+                <!-- <q-img :src="'~/assets/' + imageUrl" spinner-color="white" /> -->
+
+                <!-- <q-img :src="props.row.pictureurl" spinner-color="white" /> -->
+                <!--  -->
+                <!-- <q-img v-else :src="require(`${props.row.pictureurl}`)" /> -->
               </q-avatar>
               <span v-if="col.name == 'roles'">
                 <template v-for="role in props.row.roles" :key="role">
@@ -85,8 +98,6 @@
                     idselected = props.row.id;
 
                     editform.value = { ...props.row };
-                    // editform.value = editform.value.concat(props.row);
-                    // console.log(`${editform.value}`);
                   "
                   flat
                   dense
@@ -169,6 +180,55 @@
                         />
                       </q-card-section>
                     </div>
+                    <q-item>
+                      <q-item-section>
+                        <div><q-icon name="car" />Metode Transportasi</div>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-select
+                          v-model="editform.value.transportasi"
+                          :options="optionsTransportasi"
+                          label="Standard"
+                        />
+                      </q-item-section>
+                    </q-item>
+                    <q-card-section>
+                      <div class="q-gutter-sm">
+                        <q-radio
+                          v-model="editform.value.jeniskelamin"
+                          val="Laki-laki"
+                          label="Laki-laki"
+                        />
+                        <q-radio
+                          v-model="editform.value.jeniskelamin"
+                          val="Perempuan"
+                          label="Perempuan"
+                        />
+                      </div>
+                    </q-card-section>
+                    <q-card-section>
+                      <q-file
+                        filled
+                        bottom-slots
+                        v-model="picturefile"
+                        label="Upload Profile Picture"
+                        counter
+                        @update:model-value="updateFile"
+                      >
+                        <!-- @change="updateFile()" -->
+                        <template v-slot:prepend>
+                          <q-icon name="cloud_upload" @click.stop.prevent />
+                        </template>
+                        <template v-slot:append>
+                          <q-icon
+                            name="close"
+                            @click.stop.prevent="picturefile = null"
+                            class="cursor-pointer"
+                          />
+                        </template>
+                        <!-- <template v-slot:hint> Field hint </template> -->
+                      </q-file>
+                    </q-card-section>
 
                     <q-card-actions align="right" class="text-primary">
                       <q-btn flat label="BATAL" v-close-popup />
@@ -176,6 +236,11 @@
                         @click.stop="
                           idselected = props.row.id;
                           editRow(editform);
+                          editform.value.pictureurl = URL.createObjectURL(
+                            picturefile.value
+                          );
+                          console.log(`${editform.value.pictureurl}`);
+                          console.log(`${picturefile.value}`);
                           // props.row = editform;
                         "
                         flat
@@ -260,6 +325,7 @@ const columns = [
     label: "Picture",
     field: "pictureurl",
   },
+
   {
     name: "username",
     label: "Username",
@@ -292,44 +358,71 @@ const columns = [
     align: "center",
     label: "Aksi",
   },
+  {
+    name: "transportasi",
+    align: "left",
+    label: "Metode Transportasi",
+    field: "transportasi",
+  },
+  {
+    name: "jeniskelamin",
+    align: "left",
+    label: "Jenis Kelamin",
+    field: "jeniskelamin",
+  },
 ];
 
 const originalRows = [
   {
     id: 1,
     pictureurl: "pp1.png",
+    // pictureurl: "~assets/pp1.png",
+
     username: "usernameOne1",
     nama: "Sir One",
     email: "usernameOne1@gmail.com",
     roles: ["admin"],
     isactive: false,
+    transportasi: "Motor",
+    jeniskelamin: "Laki-laki",
   },
   {
     id: 2,
     pictureurl: "pp2.png",
+    // pictureurl: "..assets/pp2.png",
+
     username: "usernameTwo2",
     nama: "Sir Two",
     email: "usernameTwo2@gmail.com",
     roles: ["pengguna", "vip"],
     isactive: false,
+    transportasi: "Mobil",
+    jeniskelamin: "Perempuan",
   },
   {
     id: 3,
     pictureurl: "pp3.png",
+
+    // pictureurl: "assets/pp3.png",
     username: "usernameThree3",
     nama: "Sir Three",
     email: "usernameThree3@gmail.com",
     roles: ["pengguna", "vip"],
     isactive: true,
+    transportasi: "Transportasi Umum",
+    jeniskelamin: "Perempuan",
   },
   {
     id: 4,
     pictureurl: "pp4.png",
+    // pictureurl: "@assets/pp4.png",
     username: "usernameFour4",
     nama: "Sir Four",
     email: "usernameFour4@gmail.com",
     roles: ["pengguna"],
     isactive: true,
+    transportasi: "Transportasi Umum",
+    jeniskelamin: "Laki-laki",
   },
   {
     id: 5,
@@ -339,6 +432,8 @@ const originalRows = [
     email: "usernameFive5@gmail.com",
     roles: ["pengguna"],
     isactive: true,
+    transportasi: "Transportasi Umum",
+    jeniskelamin: "Laki-laki",
   },
   {
     id: 6,
@@ -348,6 +443,8 @@ const originalRows = [
     email: "usernameSix6@gmail.com",
     roles: ["pengguna"],
     isactive: true,
+    transportasi: "Transportasi Umum",
+    jeniskelamin: "Laki-laki",
   },
   {
     id: 7,
@@ -357,6 +454,8 @@ const originalRows = [
     email: "usernameSeven7@gmail.com",
     roles: ["pengguna"],
     isactive: true,
+    transportasi: "Transportasi Umum",
+    jeniskelamin: "Laki-laki",
   },
 ];
 export default defineComponent({
@@ -372,9 +471,14 @@ export default defineComponent({
     const rowCount = ref(rows.value.length);
     const editform = ref({});
     const instansi = ref("");
+    const picturefile = ref(null);
+    const image = ref(null);
+    const imageUrl = ref("pp1.png");
+
     // expose to template and other options API hooks
     return {
       // editformref,
+      picturefile,
       editdialog,
       activedialog,
       blockdialog,
@@ -433,10 +537,42 @@ export default defineComponent({
           loading.value = false;
         }, 500);
       },
+      modelTransportasi: ref(null),
+      optionsTransportasi: ["Mobil", "Motor", "Transportasi Umum"],
+      returl: ref(""),
+      loadPicture(url) {
+        const caturl = "@/assets/cat.jpg";
+        if (url !== "") {
+          // You can check any matching expression.
+          try {
+            // url = require("" + "../assets/cat.jpg");
+            url = require(`` + `${url}`);
+          } catch (e) {
+            console.log("catcherror");
+            console.log(url);
+            url = require("../assets/cat.jpg");
+            // url = require("" + String(caturl)); // I used a default image.
+            console.log(url);
+          }
+        } else {
+          console.log("else");
+          // url = require("" + caturl);
+        } // Default image.}
+        return url;
+      },
+      image,
+      imageUrl,
+      updateFile() {
+        imageUrl.value = URL.createObjectURL(image.value);
+      },
+      tempimgref: ref("~assets/pp1.png"),
+
+      // : ('')
     };
   },
   // data() {
-  //   return {};
+  //   // const imageUrl = "cat.jpg";
+  //   // return { imageUrl };
   // },
   // methods: {},
 });
