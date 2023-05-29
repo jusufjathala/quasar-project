@@ -76,3 +76,25 @@ Dibuat oleh Jusuf Junior Athala
 - menyembunyikan kolom yang tidak diperlukan pada perusahaan
 - membuat halaman detail perusahaan
 - mengatur pagination menjadi non lokal untuk tabel perusahaan
+
+6. 29/05/2023
+   Added feature:
+
+- Implementasi sistem login : telah dibuat halaman login, telah dibuat tombol logout pada MainLayout, user tidak dapat mengakses halaman selain halaman login jika belum login, user tidak bisa mengakses halaman login jika sudah login, user hanya bisa mengakses halaman login jika sudah menekan tombol logout
+- setelah berhasil login dari halaman login, user menggunakan token dan dapat menambahkan data perusahaan pada API
+- perusahaan dapat diedit secara lokal (belum terhubung ke API)
+
+  Bug Fixed:
+
+- bug image src dynamic
+
+  Bug :
+
+- bug list nama kabupaten / kota
+
+  ToDo :
+
+- membuat dialog create perusahaan
+- menyembunyikan kolom yang tidak diperlukan pada perusahaan
+- membuat halaman detail perusahaan
+- mengatur pagination menjadi non lokal untuk tabel perusahaan

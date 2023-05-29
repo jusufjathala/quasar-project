@@ -62,21 +62,16 @@
                 size="56px"
                 class="q-mb-sm"
               >
-                <!-- <img :src="require('assets/${props.row.pictureurl}')" />  broken? why?-->
-                <!-- <div v-if="picturefile.value"> -->
-                <!-- <img src="~assets/" /> -->
-                <!-- <img src="loadPicture(props.row.pictureurl)" /> -->
-                <!-- <img :src="loadPicture(props.row.pictureurl)" /> -->
-
-                <!-- <WORK> -->
-                <img :src="require(`assets/${props.row.pictureurl}`)" />
-                <!-- </div> -->
-                <!-- <q-img :src="tempimgref.value" spinner-color="white" /> -->
-                <!-- <q-img :src="'~/assets/' + imageUrl" spinner-color="white" /> -->
-
-                <!-- <q-img :src="props.row.pictureurl" spinner-color="white" /> -->
-                <!--  -->
-                <!-- <q-img v-else :src="require(`${props.row.pictureurl}`)" /> -->
+                <img
+                  v-if="isValidUrl(props.row.pictureurl)"
+                  :src="props.row.pictureurl"
+                  @error="setAltImg"
+                />
+                <img
+                  v-else
+                  :src="require(`assets/${props.row.pictureurl}`)"
+                  @error="setAltImg"
+                />
               </q-avatar>
               <span v-if="col.name == 'roles'">
                 <template v-for="role in props.row.roles" :key="role">
@@ -210,23 +205,21 @@
                       <q-file
                         filled
                         bottom-slots
-                        v-model="picturefile"
+                        v-model="image"
                         label="Upload Profile Picture"
                         counter
-                        @update:model-value="updateFile"
+                        @update:model-value="handleUpload()"
                       >
-                        <!-- @change="updateFile()" -->
                         <template v-slot:prepend>
                           <q-icon name="cloud_upload" @click.stop.prevent />
                         </template>
                         <template v-slot:append>
                           <q-icon
                             name="close"
-                            @click.stop.prevent="picturefile = null"
+                            @click.stop.prevent="image = null"
                             class="cursor-pointer"
                           />
                         </template>
-                        <!-- <template v-slot:hint> Field hint </template> -->
                       </q-file>
                     </q-card-section>
 
@@ -235,13 +228,7 @@
                       <q-btn
                         @click.stop="
                           idselected = props.row.id;
-                          editRow(editform);
-                          editform.value.pictureurl = URL.createObjectURL(
-                            picturefile.value
-                          );
-                          console.log(`${editform.value.pictureurl}`);
-                          console.log(`${picturefile.value}`);
-                          // props.row = editform;
+                          editRow(editform, imageUrl);
                         "
                         flat
                         label="UBAH"
@@ -473,7 +460,7 @@ export default defineComponent({
     const instansi = ref("");
     const picturefile = ref(null);
     const image = ref(null);
-    const imageUrl = ref("pp1.png");
+    const imageUrl = ref("");
 
     // expose to template and other options API hooks
     return {
@@ -525,7 +512,7 @@ export default defineComponent({
           loading.value = false;
         }, 500);
       },
-      editRow(editform) {
+      editRow(editform, imageUrl) {
         loading.value = true;
         setTimeout(() => {
           const idedit = editform.value.id;
@@ -533,46 +520,35 @@ export default defineComponent({
           if (!Array.isArray(editform.value.roles)) {
             editform.value.roles = editform.value.roles.split(",");
           }
+          editform.value.pictureurl = imageUrl;
           rows.value[indexrow] = editform.value;
           loading.value = false;
         }, 500);
       },
       modelTransportasi: ref(null),
       optionsTransportasi: ["Mobil", "Motor", "Transportasi Umum"],
-      returl: ref(""),
-      loadPicture(url) {
-        const caturl = "@/assets/cat.jpg";
-        if (url !== "") {
-          // You can check any matching expression.
-          try {
-            // url = require("" + "../assets/cat.jpg");
-            url = require(`` + `${url}`);
-          } catch (e) {
-            console.log("catcherror");
-            console.log(url);
-            url = require("../assets/cat.jpg");
-            // url = require("" + String(caturl)); // I used a default image.
-            console.log(url);
-          }
-        } else {
-          console.log("else");
-          // url = require("" + caturl);
-        } // Default image.}
-        return url;
-      },
       image,
       imageUrl,
-      updateFile() {
-        imageUrl.value = URL.createObjectURL(image.value);
+      handleUpload() {
+        if (image.value) {
+          imageUrl.value = URL.createObjectURL(image.value);
+        }
       },
-      tempimgref: ref("~assets/pp1.png"),
+      setAltImg(event) {
+        event.target.src = require("../assets/cat.jpg");
+      },
 
-      // : ('')
+      isValidUrl(string) {
+        try {
+          new URL(string);
+          return true;
+        } catch (err) {
+          return false;
+        }
+      },
     };
   },
   // data() {
-  //   // const imageUrl = "cat.jpg";
-  //   // return { imageUrl };
   // },
   // methods: {},
 });

@@ -6,8 +6,6 @@
       laudantium doloribus commodi eum amet ex ea vero, distinctio deleniti
       rerum. Dolorum velit itaque quidem iure sit, obcaecati corrupti iste? 1
     </p>
-    <q-btn color="primary" label="load data" @click.stop="loadData" />
-    <q-btn color="primary" label="login" @click.stop="loginUser" />
     <q-btn color="primary" label="add data" @click.stop="addData" />
     <div class="q-pa-md" v-if="columns.length != 0 && rows">
       <q-table
@@ -16,14 +14,160 @@
         title="Daftar Perusahaan"
         :rows="rows"
         :columns="columns"
+        :loading="loading"
         row-key="id"
       >
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
-              <span> {{ col.value }}</span>
+              <span v-if="col.name != 'aksi'"> {{ col.value }}</span>
+              <span v-if="col.name == 'aksi'">
+                <div v-if="col.name == 'aksi'">
+                  <q-btn
+                    @click="
+                      editdialog = true;
+                      idselected = props.row.id;
+                      editform.value = { ...props.row };
+                      // getKabKota(editform.value.kode_provinsi);
+                    "
+                    flat
+                    dense
+                    round
+                    color="primary"
+                    icon="edit"
+                  />
+                  <q-btn
+                    v-if="props.row.deleted_at != null"
+                    @click="
+                      activedialog = true;
+                      idselected = props.row.id;
+                    "
+                    flat
+                    dense
+                    round
+                    color="positive"
+                    icon="done"
+                  />
+                  <q-btn
+                    v-else
+                    @click="
+                      blockdialog = true;
+                      idselected = props.row.id;
+                    "
+                    flat
+                    dense
+                    round
+                    color="negative"
+                    icon="close"
+                  />
+                </div>
+              </span>
             </q-td>
           </q-tr>
+          <q-dialog v-if="idselected == props.row.id" v-model="editdialog">
+            <q-card>
+              <q-card-section>
+                <p class="text-h6">Update Perusahaan</p>
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="contacts" />Nama Perusahaan</div>
+                <q-input
+                  dense
+                  v-model="editform.value.nama"
+                  placeholder="Perusahaan"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="map" />Provinsi</div>
+                <q-select
+                  dense
+                  v-model="editform.value.provinsi"
+                  :options="optionsprovinsi"
+                />
+                <!-- @change="getKabKota(editform.value.provinsi)" -->
+              </q-card-section>
+
+              <q-card-section>
+                <div><q-icon name="location_city" />Kabupaten / Kota</div>
+                <q-select
+                  dense
+                  v-model="editform.value.kab_kota"
+                  :options="optionskabkota"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="location_city" />Jenis</div>
+                <q-select
+                  dense
+                  v-model="editform.value.jenis"
+                  :options="optionsjenis"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="home" />Alamat</div>
+                <q-input
+                  dense
+                  v-model="editform.value.alamat"
+                  placeholder="Alamat"
+                />
+              </q-card-section>
+
+              <q-card-actions align="right" class="text-primary">
+                <q-btn flat label="BATAL" v-close-popup />
+                <q-btn
+                  @click.stop="
+                    idselected = props.row.id;
+                    editData(editform);
+                  "
+                  flat
+                  label="UBAH"
+                  v-close-popup
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+          <q-dialog v-if="idselected == props.row.id" v-model="activedialog">
+            <q-card>
+              <q-card-section>
+                <p class="text-h6">Konfirmasi</p>
+              </q-card-section>
+              <q-card-section>
+                <p class="">Perusahaan akan di-restore. Apakah Anda yakin?</p>
+              </q-card-section>
+
+              <q-card-actions align="right">
+                <q-btn flat label="BATAL" color="primary" v-close-popup />
+                <q-btn
+                  @click.stop="props.row.isactive = !props.row.isactive"
+                  flat
+                  label="AKTIVASI"
+                  color="primary"
+                  v-close-popup
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+          <q-dialog v-if="idselected == props.row.id" v-model="blockdialog">
+            <q-card>
+              <q-card-section>
+                <p class="text-h6">Konfirmasi</p>
+              </q-card-section>
+              <q-card-section>
+                <p class="">Perusahaan akan dihapus. Apakah Anda yakin?</p>
+              </q-card-section>
+
+              <q-card-actions align="right">
+                <q-btn flat label="BATAL" color="primary" v-close-popup />
+                <q-btn
+                  @click.stop="props.row.isactive = !props.row.isactive"
+                  flat
+                  label="BLOCK"
+                  color="primary"
+                  v-close-popup
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </template>
       </q-table>
     </div>
@@ -82,32 +226,32 @@ const logincred = {
   password: "password12345",
 };
 
-const tempauthheader = {
-  email: "user50@mail.com",
-  is_banned: false,
-  refresh_token: "09e8212d-95e5-4c00-9c78-687554289012",
-  token: "",
-  user_id: 50,
-  uuid: "0cbbb637-69af-42ff-bf38-d5c6d1d7c0d3",
-};
 export default defineComponent({
   name: "PerusahaanPage",
   setup() {
     const $q = useQuasar();
     const data = ref(null);
-    const logincredref = ref(logincred);
+    const idselected = ref(0);
     const rows = ref(originalRows);
     const columns = ref([]);
-    const authheader = ref(null);
-    const token = ref("");
+    const token = $q.localStorage.getItem("token");
+    const activedialog = ref(false);
+    const blockdialog = ref(false);
+    const editdialog = ref(false);
+    const loading = ref(false);
+    const editform = ref({});
+    const optionsjenis = ref([]);
+    const optionsprovinsi = ref([]);
+    const optionskabkota = ref([]);
+    const provdata = ref([]);
+
     const perusahaanparams = ref({
       keyword: "",
       kode_provinsi: "",
       kode_kab_kota: "",
-      limit: "17",
+      limit: "50",
       offset: "0",
     });
-    const tempauthheaderref = ref(tempauthheader);
     // const paramsref = ref(perusahaanparams);
     function clearEmptyKeys(params) {
       for (const key of Object.keys(params)) {
@@ -125,39 +269,27 @@ export default defineComponent({
             label: property,
             field: property,
             align: "left",
+            sortable: true,
           });
         }
+        columns.value.push({ name: "aksi", label: "Aksi", align: "center" });
       } else {
         console.log("empty!");
       }
-    }
-    function loginUser() {
-      api
-        .post("/v5/auth/login", {
-          username: "user50@mail.com",
-          password: "password12345",
-        })
-        .then(function (response) {
-          authheader.value = response.data.data;
-          token.value = authheader.value.token;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
     }
     function addData() {
       api
         .post(
           "/v5/perusahaan/create",
           {
-            nama: "Perusahaan JawaInternasionalGlobal",
+            nama: "Perusahaan DuaPuluhSembilan",
             kode_provinsi: "16",
             kode_kab_kota: "1671",
             jenis: "SWASTA",
             alamat: "Jalan Palembang Raya no. 2110",
           },
           {
-            headers: { Authorization: `Bearer ${token.value}` },
+            headers: { Authorization: `Bearer ${token}` },
           }
         )
         .then((res) => {
@@ -170,38 +302,113 @@ export default defineComponent({
 
     function loadData() {
       clearEmptyKeys(perusahaanparams.value);
-      api
-        .get("/v5/perusahaan", {
-          params: perusahaanparams.value,
-        })
-        .then((response) => {
-          data.value = response.data;
-          rows.value = data.value.data.result;
-          setColumns(rows.value[0], columns);
-        })
-        .catch((error) => {
-          console.log(error);
-          $q.notify({
-            color: "negative",
-            position: "top",
-            message: "Loading failed",
-            icon: "report_problem",
+      loading.value = true;
+      setTimeout(() => {
+        api
+          .get("/v5/perusahaan", {
+            params: perusahaanparams.value,
+          })
+          .then((response) => {
+            data.value = response.data;
+            rows.value = data.value.data.result;
+            setColumns(rows.value[0], columns);
+          })
+          .catch((error) => {
+            console.log(error);
           });
-        });
+        loading.value = false;
+      }, 500);
     }
 
+    function editData(editform) {
+      loading.value = true;
+      setTimeout(() => {
+        const indexrow = rows.value.findIndex(
+          (item) => item.id == idselected.value
+        );
+        rows.value[indexrow] = editform.value;
+        loading.value = false;
+      }, 500);
+    }
+
+    function getProvName() {
+      setTimeout(() => {
+        api
+          .get("/v5/bansos/provinsi_list", {})
+          .then((response) => {
+            provdata.value = response.data.data.result;
+            provdata.value.forEach((prov) => {
+              optionsprovinsi.value.push(prov.nama_provinsi);
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 500);
+    }
+    function getProvId(nama) {
+      provdata.value.forEach((prov) => {
+        if (prov.nama_provinsi == nama) {
+          return prov.id;
+        }
+      });
+      return null;
+    }
+
+    function getKabKota(provid) {
+      setTimeout(() => {
+        api
+          .get("/v5/bansos/pemda_list", { id_provinsi: provid, limit: "50" })
+          .then((response) => {
+            const listkabkota = ref(response.data.data.result);
+            // listkabkota.value.forEach((kabkota) => {
+            //   optionskabkota.value.push(kabkota.nama_kab_kota);
+            // });
+            // console.log(listkabkota.value);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 500);
+    }
+
+    function getJenis() {
+      setTimeout(() => {
+        api
+          .get("/v5/perusahaan/jenis")
+          .then((response) => {
+            optionsjenis.value = response.data.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 500);
+    }
+
+    loadData();
+    getProvName();
+    getJenis();
+    // getKabKota();
     return {
+      provdata,
+      optionsjenis,
+      optionskabkota,
+      optionsprovinsi,
       data,
-      loginUser,
       loadData,
       rows,
       columns,
       perusahaanparams,
       addData,
-      authheader,
-      tempauthheaderref,
       token,
       clearEmptyKeys,
+      idselected,
+      activedialog,
+      blockdialog,
+      editData,
+      editdialog,
+      loading,
+      editform,
     };
   },
 });

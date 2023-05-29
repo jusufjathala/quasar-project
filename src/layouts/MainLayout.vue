@@ -93,6 +93,13 @@
               <q-item-section> Desktop </q-item-section>
             </q-item>
           </q-expansion-item>
+          <q-item clickable v-ripple exact @click="logoutFunction">
+            <q-item-section avatar>
+              <q-icon name="logout" />
+            </q-item-section>
+
+            <q-item-section> Logout </q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
 
@@ -125,7 +132,8 @@
 import { date } from "quasar";
 import { defineComponent, ref } from "vue";
 // import EssentialLink from "components/EssentialLink.vue";
-
+import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
 export default defineComponent({
   name: "MainLayout",
 
@@ -134,9 +142,12 @@ export default defineComponent({
   },
 
   setup() {
+    const router = useRouter();
+    const $q = useQuasar();
     const leftDrawerOpen = ref(false);
     const timeStamp = Date.now();
     const todaysDate = date.formatDate(timeStamp, "dddd DD MMMM");
+    const key = ref("token");
 
     return {
       // essentialLinks: linksList,
@@ -145,6 +156,12 @@ export default defineComponent({
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
       todaysDate,
+      key,
+      logoutFunction() {
+        localStorage.removeItem(key.value);
+        $q.localStorage.clear();
+        router.push({ path: "/auth" });
+      },
     };
   },
 });
