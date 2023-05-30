@@ -69,6 +69,7 @@ export default defineComponent({
           if (response.data.success) {
             token.value = response.data.data.token;
             $q.localStorage.set(key.value, token.value);
+            console.log(response);
             router.push({ path: "/" });
           } else {
             console.log(response);

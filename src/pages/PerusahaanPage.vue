@@ -6,7 +6,8 @@
       laudantium doloribus commodi eum amet ex ea vero, distinctio deleniti
       rerum. Dolorum velit itaque quidem iure sit, obcaecati corrupti iste? 1
     </p>
-    <q-btn color="primary" label="add data" @click.stop="addData" />
+    <q-btn color="primary" label="add data" @click="createdialog = true" />
+
     <div class="q-pa-md" v-if="columns.length != 0 && rows">
       <q-table
         flat
@@ -25,10 +26,22 @@
                 <div v-if="col.name == 'aksi'">
                   <q-btn
                     @click="
+                      idselected = props.row.id;
+                      getDetail();
+                      detaildialog = true;
+                    "
+                    flat
+                    dense
+                    round
+                    color="positive"
+                    icon="info"
+                  />
+                  <q-btn
+                    @click="
                       editdialog = true;
                       idselected = props.row.id;
                       editform.value = { ...props.row };
-                      // getKabKota(editform.value.kode_provinsi);
+                      getKabKota(editform.value.kode_provinsi);
                     "
                     flat
                     dense
@@ -46,7 +59,7 @@
                     dense
                     round
                     color="positive"
-                    icon="done"
+                    icon="restore"
                   />
                   <q-btn
                     v-else
@@ -58,12 +71,80 @@
                     dense
                     round
                     color="negative"
-                    icon="close"
+                    icon="delete"
                   />
                 </div>
               </span>
             </q-td>
           </q-tr>
+          <q-dialog v-model="createdialog">
+            <q-card>
+              <q-card-section>
+                <p class="text-h6">Create Perusahaan</p>
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="contacts" />Nama Perusahaan</div>
+                <q-input
+                  dense
+                  v-model="createform.nama"
+                  placeholder="Perusahaan"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="map" />Provinsi</div>
+                <q-select
+                  dense
+                  v-model="createform.provinsi"
+                  @update:model-value="
+                    getKabKota(
+                      getIdbyName(
+                        'id_provinsi',
+                        'nama_provinsi',
+                        createform.provinsi,
+                        provdata
+                      )
+                    )
+                  "
+                  :options="optionsprovinsi"
+                />
+              </q-card-section>
+
+              <q-card-section>
+                <div><q-icon name="location_city" />Kabupaten / Kota</div>
+                <q-select
+                  dense
+                  v-model="createform.kab_kota"
+                  :options="optionskabkota"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="location_city" />Jenis</div>
+                <q-select
+                  dense
+                  v-model="createform.jenis"
+                  :options="optionsjenis"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div><q-icon name="home" />Alamat</div>
+                <q-input
+                  dense
+                  v-model="createform.alamat"
+                  placeholder="Alamat"
+                />
+              </q-card-section>
+
+              <q-card-actions align="right" class="text-primary">
+                <q-btn flat label="BATAL" v-close-popup />
+                <q-btn
+                  @click.stop="addData(createform)"
+                  flat
+                  label="CREATE"
+                  v-close-popup
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
           <q-dialog v-if="idselected == props.row.id" v-model="editdialog">
             <q-card>
               <q-card-section>
@@ -82,9 +163,17 @@
                 <q-select
                   dense
                   v-model="editform.value.provinsi"
+                  @update:model-value="
+                    editform.value.kode_provinsi = getIdbyName(
+                      'id_provinsi',
+                      'nama_provinsi',
+                      editform.value.provinsi,
+                      provdata
+                    );
+                    getKabKota(editform.value.kode_provinsi);
+                  "
                   :options="optionsprovinsi"
                 />
-                <!-- @change="getKabKota(editform.value.provinsi)" -->
               </q-card-section>
 
               <q-card-section>
@@ -126,6 +215,21 @@
               </q-card-actions>
             </q-card>
           </q-dialog>
+          <q-dialog v-if="idselected == props.row.id" v-model="detaildialog">
+            <q-card>
+              <q-card-section>
+                <p class="text-h6">Detail Perusahaan</p>
+              </q-card-section>
+              <q-card-section>
+                <p>{{ detailperusahaan }}</p>
+              </q-card-section>
+
+              <q-card-actions align="right">
+                <q-btn flat label="TUTUP" color="primary" v-close-popup />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+
           <q-dialog v-if="idselected == props.row.id" v-model="activedialog">
             <q-card>
               <q-card-section>
@@ -138,7 +242,7 @@
               <q-card-actions align="right">
                 <q-btn flat label="BATAL" color="primary" v-close-popup />
                 <q-btn
-                  @click.stop="props.row.isactive = !props.row.isactive"
+                  @click.stop="setStatusPerusahaan"
                   flat
                   label="AKTIVASI"
                   color="primary"
@@ -159,7 +263,7 @@
               <q-card-actions align="right">
                 <q-btn flat label="BATAL" color="primary" v-close-popup />
                 <q-btn
-                  @click.stop="props.row.isactive = !props.row.isactive"
+                  @click.stop="setStatusPerusahaan()"
                   flat
                   label="BLOCK"
                   color="primary"
@@ -168,6 +272,9 @@
               </q-card-actions>
             </q-card>
           </q-dialog>
+        </template>
+        <template v-slot:loading>
+          <q-inner-loading showing color="primary" />
         </template>
       </q-table>
     </div>
@@ -238,21 +345,25 @@ export default defineComponent({
     const activedialog = ref(false);
     const blockdialog = ref(false);
     const editdialog = ref(false);
+    const createdialog = ref(false);
+    const detaildialog = ref(false);
     const loading = ref(false);
     const editform = ref({});
+    const createform = ref({});
     const optionsjenis = ref([]);
     const optionsprovinsi = ref([]);
     const optionskabkota = ref([]);
-    const provdata = ref([]);
+    const provdata = ref({});
+    const kabkotadata = ref({});
+    const detailperusahaan = ref("");
 
     const perusahaanparams = ref({
       keyword: "",
       kode_provinsi: "",
       kode_kab_kota: "",
-      limit: "50",
+      limit: "100",
       offset: "0",
     });
-    // const paramsref = ref(perusahaanparams);
     function clearEmptyKeys(params) {
       for (const key of Object.keys(params)) {
         if (params[key] === "") {
@@ -260,9 +371,14 @@ export default defineComponent({
         }
       }
     }
+    function setAllEmptyKeys(params) {
+      for (const key of Object.keys(params)) {
+        params[key] = "";
+      }
+    }
     //
     function setColumns(row, columns) {
-      if (row != null) {
+      if (row != null && columns.value.length == 0) {
         for (let property in row) {
           columns.value.push({
             name: property,
@@ -274,30 +390,49 @@ export default defineComponent({
         }
         columns.value.push({ name: "aksi", label: "Aksi", align: "center" });
       } else {
-        console.log("empty!");
+        // ("error!");
       }
     }
     function addData() {
-      api
-        .post(
-          "/v5/perusahaan/create",
-          {
-            nama: "Perusahaan DuaPuluhSembilan",
-            kode_provinsi: "16",
-            kode_kab_kota: "1671",
-            jenis: "SWASTA",
-            alamat: "Jalan Palembang Raya no. 2110",
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      loading.value = true;
+      clearEmptyKeys(createform.value);
+
+      createform.value["kode_provinsi"] = getIdbyName(
+        "id_provinsi",
+        "nama_provinsi",
+        createform.value["provinsi"],
+        provdata.value
+      );
+      delete createform.value["provinsi"];
+
+      createform.value["kode_kab_kota"] = getIdbyName(
+        "id_kota_kabupaten",
+        "nama",
+        createform.value["kab_kota"],
+        kabkotadata.value
+      );
+
+      delete editform.value["kab_kota"];
+
+      setTimeout(() => {
+        api
+          .post(
+            "/v5/perusahaan/create",
+            createform.value
+            //,{
+            //  headers: { Authorization: `Bearer ${token}` },
+            //}
+          )
+          .then((res) => {
+            loadData();
+            $q.notify("Data Berhasil Dibuat");
+            // (res.data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        loading.value = false;
+      }, 500);
     }
 
     function loadData() {
@@ -312,6 +447,34 @@ export default defineComponent({
             data.value = response.data;
             rows.value = data.value.data.result;
             setColumns(rows.value[0], columns);
+            createform.value = { ...rows.value[0] };
+            setAllEmptyKeys(createform.value);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        loading.value = false;
+      }, 500);
+    }
+    function setStatusPerusahaan() {
+      setTimeout(() => {
+        loading.value = true;
+        const action = ref("");
+
+        const indexrow = rows.value.findIndex(
+          (item) => item.id == idselected.value
+        );
+        const isDeleted = rows.value[indexrow].deleted_at != null;
+        if (isDeleted == true) {
+          action.value = "restore";
+        } else {
+          action.value = "delete";
+        }
+        api
+          .post(`/v5/perusahaan/${action.value}/${idselected.value}`, {})
+          .then((response) => {
+            loadData();
+            $q.notify("Status Perusahaan Berhasil Diubah");
           })
           .catch((error) => {
             console.log(error);
@@ -323,12 +486,34 @@ export default defineComponent({
     function editData(editform) {
       loading.value = true;
       setTimeout(() => {
-        const indexrow = rows.value.findIndex(
-          (item) => item.id == idselected.value
+        editform.value["kode_provinsi"] = getIdbyName(
+          "id_provinsi",
+          "nama_provinsi",
+          editform.value["provinsi"],
+          provdata.value
         );
-        rows.value[indexrow] = editform.value;
+        delete editform.value["provinsi"];
+
+        editform.value["kode_kab_kota"] = getIdbyName(
+          "id_kota_kabupaten",
+          "nama",
+          editform.value["kab_kota"],
+          kabkotadata.value
+        );
+
+        delete editform.value["kab_kota"];
+        api
+          .post(`/v5/perusahaan/update/${idselected.value}`, editform.value)
+          .then((response) => {
+            loadData();
+            $q.notify("Detail Perusahaan Berhasil Diubah");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
         loading.value = false;
       }, 500);
+      setTimeout(() => {}, 500);
     }
 
     function getProvName() {
@@ -346,25 +531,50 @@ export default defineComponent({
           });
       }, 500);
     }
-    function getProvId(nama) {
-      provdata.value.forEach((prov) => {
-        if (prov.nama_provinsi == nama) {
-          return prov.id;
+    function getIdbyName(keyid, keyname, val, data) {
+      const id = ref(0);
+      data.forEach((row) => {
+        if (row[keyname] == val) {
+          id.value = row[keyid];
         }
       });
-      return null;
+      return id.value;
     }
 
     function getKabKota(provid) {
+      optionskabkota.value = [];
       setTimeout(() => {
         api
-          .get("/v5/bansos/pemda_list", { id_provinsi: provid, limit: "50" })
+          .get("/v5/bansos/pemda_list", { id_provinsi: provid, limit: "100" })
           .then((response) => {
-            const listkabkota = ref(response.data.data.result);
-            // listkabkota.value.forEach((kabkota) => {
-            //   optionskabkota.value.push(kabkota.nama_kab_kota);
-            // });
-            // console.log(listkabkota.value);
+            kabkotadata.value = response.data.data.result;
+            kabkotadata.value.forEach((kabkota) => {
+              if (kabkota.id_kota_kabupaten != null) {
+                optionskabkota.value.push(kabkota.nama);
+              }
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 500);
+    }
+
+    function getDetail() {
+      detailperusahaan.value = "";
+      setTimeout(() => {
+        api
+          .get(`/v5/perusahaan/detail/${idselected.value}`)
+          .then((response) => {
+            console.log(response.data);
+            for (const key of Object.keys(response.data.data)) {
+              detailperusahaan.value =
+                String(detailperusahaan.value) +
+                String(key) +
+                " " +
+                String(response.data.data[key]) +
+                ", ";
+            }
           })
           .catch((error) => {
             console.log(error);
@@ -384,12 +594,21 @@ export default defineComponent({
           });
       }, 500);
     }
+    // set header
+    api.defaults.headers.common["Authorization"] = "Bearer " + String(token);
 
     loadData();
     getProvName();
     getJenis();
+
     // getKabKota();
     return {
+      getDetail,
+      detailperusahaan,
+      detaildialog,
+      kabkotadata,
+      createdialog,
+      setStatusPerusahaan,
       provdata,
       optionsjenis,
       optionskabkota,
@@ -409,6 +628,9 @@ export default defineComponent({
       editdialog,
       loading,
       editform,
+      createform,
+      getKabKota,
+      getIdbyName,
     };
   },
 });

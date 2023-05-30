@@ -12,13 +12,49 @@
       obcaecati beatae amet, nemo, ipsam alias assumenda tempore eius
       repudiandae vero accusamus! 2
     </p>
+    <q-btn
+      color="primary"
+      label="check api getdaftar"
+      @click="
+        console.log('clicked');
+        getKabKota(); // (createdialog);
+      "
+    />
   </q-page>
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
+import { api } from "boot/axios";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "HelpPage",
+  setup() {
+    // const provid = "35";
+    function getKabKota() {
+      console.log("fired");
+      // optionskabkota.value = [];
+      setTimeout(() => {
+        api
+          .get("/v5/bansos/pemda_list", {
+            id_provinsi: "91",
+            limit: "11",
+            offset: "0",
+            keyword: "",
+          })
+          .then((response) => {
+            console.log("getdata");
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 500);
+    }
+    return {
+      getKabKota,
+    };
+  },
 });
 </script>

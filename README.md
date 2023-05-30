@@ -92,9 +92,19 @@ Dibuat oleh Jusuf Junior Athala
 
 - bug list nama kabupaten / kota
 
+7. 30/05/2023
+   Added feature:
+
+- dialog create perusahaan, edit perusahaan , detail perusahaan
+- dapat menambahkan perusahaan baru ke API , dapat mengedit detail data di API, dapat mengubah status perusahaan di API
+- animasi loading ketika sedang fetch API / mengirim data ke API, notifikasi / alert ketika berhasil membuat data baru, mengedit data, dan mengubah status perusahaan
+
+  Bug :
+
+- bug list nama kabupaten / kota pada dialog create dan edit perusahaan
+
   ToDo :
 
-- membuat dialog create perusahaan
 - menyembunyikan kolom yang tidak diperlukan pada perusahaan
-- membuat halaman detail perusahaan
+- merapihkan dialog detail perusahaan
 - mengatur pagination menjadi non lokal untuk tabel perusahaan
