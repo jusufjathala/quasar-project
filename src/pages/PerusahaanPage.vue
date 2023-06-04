@@ -6,17 +6,20 @@
       laudantium doloribus commodi eum amet ex ea vero, distinctio deleniti
       rerum. Dolorum velit itaque quidem iure sit, obcaecati corrupti iste? 1
     </p>
-    <q-btn color="primary" label="add data" @click="createdialog = true" />
 
-    <div class="q-pa-md" v-if="columns.length != 0 && rows">
+    <div class="q-pa-md">
+      <q-btn color="primary" label="add data" @click="createdialog = true" />
       <q-table
         flat
         bordered
         title="Daftar Perusahaan"
         :rows="rows"
         :columns="columns"
-        :loading="loading"
         row-key="id"
+        :loading="loading"
+        :filter="filter"
+        no-data-label="Error data"
+        no-results-label="Search result empty"
       >
         <template v-slot:body="props">
           <q-tr :props="props">
@@ -40,6 +43,7 @@
                     @click="
                       editdialog = true;
                       idselected = props.row.id;
+                      editform.value = {};
                       editform.value = { ...props.row };
                       getKabKota(editform.value.kode_provinsi);
                     "
@@ -206,8 +210,11 @@
                 <q-btn
                   @click.stop="
                     idselected = props.row.id;
-                    editData(editform);
+                    if (!compareKeys(props.row, editform.value)) {
+                      editData(editform);
+                    }
                   "
+                  :disabled="compareKeys(props.row, editform.value)"
                   flat
                   label="UBAH"
                   v-close-popup
@@ -216,14 +223,21 @@
             </q-card>
           </q-dialog>
           <q-dialog v-if="idselected == props.row.id" v-model="detaildialog">
-            <q-card>
+            <q-card style="width: 400px; height: 500px">
               <q-card-section>
                 <p class="text-h6">Detail Perusahaan</p>
+                <q-table
+                  flat
+                  grid
+                  card-class="fit"
+                  :rows="detailperusahaan"
+                  row-key="nama"
+                  hide-header
+                  hide-bottom
+                  card-container-class="full-width"
+                >
+                </q-table>
               </q-card-section>
-              <q-card-section>
-                <p>{{ detailperusahaan }}</p>
-              </q-card-section>
-
               <q-card-actions align="right">
                 <q-btn flat label="TUTUP" color="primary" v-close-popup />
               </q-card-actions>
@@ -276,8 +290,45 @@
         <template v-slot:loading>
           <q-inner-loading showing color="primary" />
         </template>
+        <template v-slot:top-right>
+          <q-input
+            borderless
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="Search"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+        <template v-slot:no-data="{ message }">
+          <div class="full-width row flex-center q-gutter-sm">
+            <q-icon size="2em" name="sentiment_dissatisfied" />
+            <span>
+              {{ message }}
+            </span>
+            <q-btn
+              v-if="rows.length == 0"
+              color="primary"
+              label="Retry"
+              :disabled="!errormsg"
+              @click="
+                errormsg = !errormsg;
+                loadData();
+              "
+            />
+          </div>
+        </template>
       </q-table>
     </div>
+    <!-- <div class="q-pa-md" v-if="errormsg" :loading="loading">
+      Terjadi error! Silahkan coba lagi
+    </div>
+    <template v-slot:loading>
+      <q-inner-loading showing color="primary" />
+    </template> -->
   </q-page>
 </template>
 
@@ -287,51 +338,94 @@ import { api } from "boot/axios";
 import { useQuasar } from "quasar";
 
 const originalRows = [
-  {
-    id: 10,
-    nama: "NIAS",
-    alamat: null,
-    jenis: "SWASTA",
-    kode_provinsi: "12",
-    provinsi: "Sumatera Utara",
-    kode_kab_kota: "1204",
-    kab_kota: "NIAS",
-    created_at: "2023-05-23 04:20:52",
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: 20,
-    nama: "LANGKAT",
-    alamat: null,
-    jenis: "SWASTA",
-    kode_provinsi: "12",
-    provinsi: "Sumatera Utara",
-    kode_kab_kota: "1205",
-    kab_kota: "LANGKAT",
-    created_at: "2023-05-23 04:20:52",
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: 30,
-    nama: "KARO",
-    alamat: null,
-    jenis: "SWASTA",
-    kode_provinsi: "12",
-    provinsi: "Sumatera Utara",
-    kode_kab_kota: "1206",
-    kab_kota: "KARO",
-    created_at: "2023-05-23 04:20:52",
-    updated_at: null,
-    deleted_at: null,
-  },
+  // {
+  //   id: 10,
+  //   nama: "NIAS",
+  //   alamat: null,
+  //   jenis: "SWASTA",
+  //   kode_provinsi: "12",
+  //   provinsi: "Sumatera Utara",
+  //   kode_kab_kota: "1204",
+  //   kab_kota: "NIAS",
+  //   created_at: "2023-05-23 04:20:52",
+  //   updated_at: null,
+  //   deleted_at: null,
+  // },
+  // {
+  //   id: 20,
+  //   nama: "LANGKAT",
+  //   alamat: null,
+  //   jenis: "SWASTA",
+  //   kode_provinsi: "12",
+  //   provinsi: "Sumatera Utara",
+  //   kode_kab_kota: "1205",
+  //   kab_kota: "LANGKAT",
+  //   created_at: "2023-05-23 04:20:52",
+  //   updated_at: null,
+  //   deleted_at: null,
+  // },
+  // {
+  //   id: 30,
+  //   nama: "KARO",
+  //   alamat: null,
+  //   jenis: "SWASTA",
+  //   kode_provinsi: "12",
+  //   provinsi: "Sumatera Utara",
+  //   kode_kab_kota: "1206",
+  //   kab_kota: "KARO",
+  //   created_at: "2023-05-23 04:20:52",
+  //   updated_at: null,
+  //   deleted_at: null,
+  // },
 ];
 
 const logincred = {
   username: "user50@mail.com",
   password: "password12345",
 };
+
+const origCols = [
+  {
+    name: "id",
+    required: true,
+    label: "ID",
+    align: "left",
+    field: (row) => row.id,
+    format: (val) => `${val}`,
+    sortable: true,
+  },
+  {
+    name: "nama",
+    align: "left",
+    label: "Nama",
+    field: "nama",
+    sortable: true,
+  },
+  {
+    name: "jenis",
+    align: "left",
+    label: "Jenis",
+    field: "jenis",
+    sortable: true,
+  },
+  {
+    name: "provinsi",
+    align: "left",
+    label: "Provinsi",
+    field: "provinsi",
+  },
+  {
+    name: "kab_kota",
+    align: "left",
+    label: "Kabupaten / Kota",
+    field: "kab_kota",
+  },
+  {
+    name: "aksi",
+    align: "center",
+    label: "Aksi",
+  },
+];
 
 export default defineComponent({
   name: "PerusahaanPage",
@@ -340,7 +434,7 @@ export default defineComponent({
     const data = ref(null);
     const idselected = ref(0);
     const rows = ref(originalRows);
-    const columns = ref([]);
+    const columns = ref(origCols);
     const token = $q.localStorage.getItem("token");
     const activedialog = ref(false);
     const blockdialog = ref(false);
@@ -355,7 +449,18 @@ export default defineComponent({
     const optionskabkota = ref([]);
     const provdata = ref({});
     const kabkotadata = ref({});
-    const detailperusahaan = ref("");
+    const detailperusahaan = ref([]);
+    const tableRef = ref();
+    const filter = ref("");
+    const pagination = ref({
+      sortBy: "desc",
+      descending: false,
+      page: 1,
+      rowsPerPage: 3,
+      rowsNumber: 10,
+    });
+    const rowsNumber = ref(0);
+    const errormsg = ref(false);
 
     const perusahaanparams = ref({
       keyword: "",
@@ -374,23 +479,6 @@ export default defineComponent({
     function setAllEmptyKeys(params) {
       for (const key of Object.keys(params)) {
         params[key] = "";
-      }
-    }
-    //
-    function setColumns(row, columns) {
-      if (row != null && columns.value.length == 0) {
-        for (let property in row) {
-          columns.value.push({
-            name: property,
-            label: property,
-            field: property,
-            align: "left",
-            sortable: true,
-          });
-        }
-        columns.value.push({ name: "aksi", label: "Aksi", align: "center" });
-      } else {
-        // ("error!");
       }
     }
     function addData() {
@@ -426,9 +514,11 @@ export default defineComponent({
           .then((res) => {
             loadData();
             $q.notify("Data Berhasil Dibuat");
+            errormsg.value = false;
             // (res.data);
           })
           .catch((error) => {
+            errormsg.value = true;
             console.log(error);
           });
         loading.value = false;
@@ -446,15 +536,62 @@ export default defineComponent({
           .then((response) => {
             data.value = response.data;
             rows.value = data.value.data.result;
-            setColumns(rows.value[0], columns);
+            // setColumns(rows.value[0], columns);
             createform.value = { ...rows.value[0] };
             setAllEmptyKeys(createform.value);
+            rowsNumber.value = response.data.total_record;
+            errormsg.value = false;
           })
           .catch((error) => {
+            errormsg.value = true;
             console.log(error);
           });
         loading.value = false;
       }, 500);
+    }
+
+    function onRequest(props) {
+      const { page, rowsPerPage, sortBy, descending } = props.pagination;
+      const filter = props.filter;
+
+      loading.value = true;
+
+      // emulate server
+      setTimeout(() => {
+        // update rowsCount with appropriate value
+        perusahaanparams.value.keyword = filter;
+        loadData();
+        pagination.value.rowsNumber = rowsNumber.value;
+
+        // get all rows if "All" (0) is selected
+        const fetchCount =
+          rowsPerPage === 0 ? pagination.value.rowsNumber : rowsPerPage;
+
+        // calculate starting row of data
+        const startRow = (page - 1) * rowsPerPage;
+
+        perusahaanparams.value.keyword = filter;
+        // fetch data from "server"
+        // const returnedData = fetchFromServer(
+        //   startRow,
+        //   fetchCount,
+        //   filter,
+        //   sortBy,
+        //   descending
+        // );
+
+        // clear out existing data and add new
+        rows.value.splice(0, rows.value.length, ...returnedData);
+
+        // don't forget to update local pagination object
+        pagination.value.page = page;
+        pagination.value.rowsPerPage = rowsPerPage;
+        pagination.value.sortBy = sortBy;
+        pagination.value.descending = descending;
+
+        // ...and turn of loading indicator
+        loading.value = false;
+      }, 1000);
     }
     function setStatusPerusahaan() {
       setTimeout(() => {
@@ -475,8 +612,10 @@ export default defineComponent({
           .then((response) => {
             loadData();
             $q.notify("Status Perusahaan Berhasil Diubah");
+            errormsg.value = false;
           })
           .catch((error) => {
+            errormsg.value = true;
             console.log(error);
           });
         loading.value = false;
@@ -486,29 +625,44 @@ export default defineComponent({
     function editData(editform) {
       loading.value = true;
       setTimeout(() => {
-        editform.value["kode_provinsi"] = getIdbyName(
-          "id_provinsi",
-          "nama_provinsi",
-          editform.value["provinsi"],
-          provdata.value
-        );
-        delete editform.value["provinsi"];
+        if (
+          editform.value["kode_provinsi"] == null ||
+          editform.value["kode_provinsi"] == "" ||
+          editform.value["kode_provinsi"] == "0"
+        ) {
+          editform.value["kode_provinsi"] = getIdbyName(
+            "id_provinsi",
+            "nama_provinsi",
+            editform.value["provinsi"],
+            provdata.value
+          );
+        }
+        // delete editform.value["provinsi"];
 
-        editform.value["kode_kab_kota"] = getIdbyName(
-          "id_kota_kabupaten",
-          "nama",
-          editform.value["kab_kota"],
-          kabkotadata.value
-        );
+        if (
+          editform.value["kode_kab_kota"] == null ||
+          editform.value["kode_kab_kota"] == "" ||
+          editform.value["kode_kab_kota"] == "0"
+        ) {
+          editform.value["kode_kab_kota"] = getIdbyName(
+            "id_kota_kabupaten",
+            "nama",
+            editform.value["kab_kota"],
+            kabkotadata.value
+          );
+        }
 
-        delete editform.value["kab_kota"];
+        console.log(editform.value);
+        // delete editform.value["kab_kota"];
         api
           .post(`/v5/perusahaan/update/${idselected.value}`, editform.value)
           .then((response) => {
             loadData();
             $q.notify("Detail Perusahaan Berhasil Diubah");
+            errormsg.value = false;
           })
           .catch((error) => {
+            errormsg.value = true;
             console.log(error);
           });
         loading.value = false;
@@ -545,7 +699,9 @@ export default defineComponent({
       optionskabkota.value = [];
       setTimeout(() => {
         api
-          .get("/v5/bansos/pemda_list", { id_provinsi: provid, limit: "100" })
+          .get("/v5/bansos/pemda_list", {
+            params: { id_provinsi: provid, limit: "50" },
+          })
           .then((response) => {
             kabkotadata.value = response.data.data.result;
             kabkotadata.value.forEach((kabkota) => {
@@ -561,20 +717,40 @@ export default defineComponent({
     }
 
     function getDetail() {
-      detailperusahaan.value = "";
+      detailperusahaan.value = [];
       setTimeout(() => {
         api
           .get(`/v5/perusahaan/detail/${idselected.value}`)
           .then((response) => {
-            console.log(response.data);
-            for (const key of Object.keys(response.data.data)) {
-              detailperusahaan.value =
-                String(detailperusahaan.value) +
-                String(key) +
-                " " +
-                String(response.data.data[key]) +
-                ", ";
-            }
+            const flattenObj = (ob) => {
+              // The object which contains the
+              // final result
+              let result = {};
+
+              // loop through the object "ob"
+              for (const i in ob) {
+                if (ob[i] === null) {
+                  result[i] = "No Data";
+                }
+                // We check the type of the i using
+                // typeof() function and recursively
+                // call the function again
+                if (typeof ob[i] === "object" && !Array.isArray(ob[i])) {
+                  const temp = flattenObj(ob[i]);
+                  for (const j in temp) {
+                    result[i + "." + j] = temp[j];
+                  }
+                }
+
+                // Else store ob[i] in result directly
+                else {
+                  result[i] = ob[i];
+                }
+              }
+
+              return result;
+            };
+            detailperusahaan.value.push(flattenObj(response.data.data));
           })
           .catch((error) => {
             console.log(error);
@@ -594,15 +770,25 @@ export default defineComponent({
           });
       }, 500);
     }
+
+    function compareKeys(obj1, obj2) {
+      return (
+        Object.keys(obj1).length === Object.keys(obj2).length &&
+        Object.keys(obj1).every((p) => obj1[p] === obj2[p])
+      );
+    }
+
     // set header
     api.defaults.headers.common["Authorization"] = "Bearer " + String(token);
 
     loadData();
-    getProvName();
-    getJenis();
+    if (!errormsg.value) {
+      getProvName();
+      getJenis();
+    }
 
-    // getKabKota();
     return {
+      errormsg,
       getDetail,
       detailperusahaan,
       detaildialog,
@@ -631,6 +817,11 @@ export default defineComponent({
       createform,
       getKabKota,
       getIdbyName,
+      compareKeys,
+      tableRef,
+      filter,
+      pagination,
+      rowsNumber,
     };
   },
 });

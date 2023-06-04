@@ -103,8 +103,26 @@ Dibuat oleh Jusuf Junior Athala
 
 - bug list nama kabupaten / kota pada dialog create dan edit perusahaan
 
+7. 31/05/2023
+   Added feature:
+
+- dialog detail perusahaan yang telah diatur tampilannya
+- sistem filter pada lokal (masih belum terhubung ke API)
+- user tidak akan bisa menekan tombol Ubah ketika tidak terjadi perubahan di dialog edit perusahaan
+- tabel perusahaan hanya menampilkan kolom penting
+- menampilkan error message ketika terjadi error melakukan koneksi ke API, user dapat menekan tombol Retry untuk meload ulang tabel
+
+  Bug Fix:
+
+- bug list nama kabupaten / kota pada dialog create dan edit perusahaan
+
+  Bug :
+
+- bug edit untuk jenis perusahaan
+
   ToDo :
 
-- menyembunyikan kolom yang tidak diperlukan pada perusahaan
-- merapihkan dialog detail perusahaan
-- mengatur pagination menjadi non lokal untuk tabel perusahaan
+- styling dialog
+- mengatur pagination dan filter menjadi terhubung ke API untuk tabel perusahaan
+- notifikasi gagal melakukan sebuah aksi
+- menampilkan pesan error API dengan isi kode error dan detail error

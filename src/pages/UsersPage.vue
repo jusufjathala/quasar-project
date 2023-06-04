@@ -532,6 +532,7 @@ export default defineComponent({
       handleUpload() {
         if (image.value) {
           imageUrl.value = URL.createObjectURL(image.value);
+          console.log(imageUrl.value);
         }
       },
       setAltImg(event) {
